@@ -1,0 +1,91 @@
+EXPERIMENT 18 — Producer-Consumer Problem using Semaphores
+======================================================================
+
+AIM:
+To simulate the producer-consumer problem using semaphores in a C program.
+
+ALGORITHM:
+1. Create a bounded circular buffer of size `N`.
+2. Use semaphore `empty` (initial value N) to count free slots, semaphore `full` (initial value 0) to count filled slots, and a mutex to protect buffer access.
+3. **Producer:** wait(empty) → wait(mutex) → insert item → signal(mutex) → signal(full).
+4. **Consumer:** wait(full) → wait(mutex) → remove item → signal(mutex) → signal(empty).
+5. Run producer and consumer as separate threads for a fixed number of items.
+6. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+
+#define BUFFER_SIZE 5
+#define ITEMS 10
+
+int buffer[BUFFER_SIZE];
+int in = 0, out = 0;
+
+sem_t empty, full;
+pthread_mutex_t mutex;
+
+void *producer(void *arg) {
+    for (int i = 1; i <= ITEMS; i++) {
+        sem_wait(&empty);
+        pthread_mutex_lock(&mutex);
+
+        buffer[in] = i;
+        printf("Producer produced: %d at slot %d\n", i, in);
+        in = (in + 1) % BUFFER_SIZE;
+
+        pthread_mutex_unlock(&mutex);
+        sem_post(&full);
+        usleep(100000);
+    }
+    return NULL;
+}
+
+void *consumer(void *arg) {
+    for (int i = 1; i <= ITEMS; i++) {
+        sem_wait(&full);
+        pthread_mutex_lock(&mutex);
+
+        int item = buffer[out];
+        printf("Consumer consumed: %d from slot %d\n", item, out);
+        out = (out + 1) % BUFFER_SIZE;
+
+        pthread_mutex_unlock(&mutex);
+        sem_post(&empty);
+        usleep(150000);
+    }
+    return NULL;
+}
+
+int main() {
+    pthread_t prod, cons;
+    sem_init(&empty, 0, BUFFER_SIZE);
+    sem_init(&full, 0, 0);
+    pthread_mutex_init(&mutex, NULL);
+
+    pthread_create(&prod, NULL, producer, NULL);
+    pthread_create(&cons, NULL, consumer, NULL);
+
+    pthread_join(prod, NULL);
+    pthread_join(cons, NULL);
+
+    printf("Production and consumption complete.\n");
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+Producer produced: 1 at slot 0
+Consumer consumed: 1 from slot 0
+Producer produced: 2 at slot 1
+Producer produced: 3 at slot 2
+Consumer consumed: 2 from slot 1
+...
+Production and consumption complete.

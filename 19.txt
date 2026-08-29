@@ -1,0 +1,59 @@
+EXPERIMENT 19 — Process Synchronization using Mutex Locks
+======================================================================
+
+AIM:
+To implement process synchronization using mutex locks in a C program.
+
+ALGORITHM:
+1. Declare a shared variable (e.g., a counter) accessed by multiple threads.
+2. Declare a `pthread_mutex_t` and initialize it.
+3. Each thread locks the mutex before accessing the shared variable and unlocks it after.
+4. Create multiple threads that each increment the shared variable a fixed number of times.
+5. Join all threads and display the final value of the shared variable, verifying no lost updates.
+6. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <pthread.h>
+
+#define NUM_THREADS 4
+#define INCREMENTS 100000
+
+long counter = 0;
+pthread_mutex_t lock;
+
+void *increment(void *arg) {
+    for (int i = 0; i < INCREMENTS; i++) {
+        pthread_mutex_lock(&lock);
+        counter++;
+        pthread_mutex_unlock(&lock);
+    }
+    return NULL;
+}
+
+int main() {
+    pthread_t threads[NUM_THREADS];
+    pthread_mutex_init(&lock, NULL);
+
+    for (int i = 0; i < NUM_THREADS; i++)
+        pthread_create(&threads[i], NULL, increment, NULL);
+
+    for (int i = 0; i < NUM_THREADS; i++)
+        pthread_join(threads[i], NULL);
+
+    printf("Final counter value = %ld\n", counter);
+    printf("Expected value      = %d\n", NUM_THREADS * INCREMENTS);
+
+    pthread_mutex_destroy(&lock);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+Final counter value = 400000
+Expected value      = 400000

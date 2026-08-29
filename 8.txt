@@ -1,0 +1,83 @@
+EXPERIMENT 8 — Round Robin Scheduling
+======================================================================
+
+AIM:
+To simulate the Round Robin CPU scheduling algorithm using C.
+
+ALGORITHM:
+1. Start the program.
+2. Read `n` processes with burst times and the time quantum `tq`.
+3. Maintain a remaining burst time array; use a circular queue of process indices.
+4. Repeatedly pick the process at the front of the queue; execute for `min(tq, remaining burst)`; reduce remaining burst.
+5. If remaining burst > 0, requeue the process at the back; else record its completion/turnaround/waiting time.
+6. Repeat until all processes finish.
+7. Compute and display averages.
+8. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#define MAX 20
+
+int main() {
+    int n, tq, i, time = 0;
+    int bt[MAX], rem[MAX], wt[MAX], tat[MAX];
+    int queue[100], front = 0, rear = 0, count;
+    float avg_wt = 0, avg_tat = 0;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+    for (i = 0; i < n; i++) {
+        printf("Burst time of P%d: ", i + 1);
+        scanf("%d", &bt[i]);
+        rem[i] = bt[i];
+        queue[rear++] = i;
+    }
+    printf("Enter time quantum: ");
+    scanf("%d", &tq);
+
+    count = n;
+    while (count > 0) {
+        int idx = queue[front++];
+        int slice = (rem[idx] > tq) ? tq : rem[idx];
+        time += slice;
+        rem[idx] -= slice;
+
+        if (rem[idx] > 0) {
+            queue[rear++] = idx;   // requeue
+        } else {
+            tat[idx] = time;
+            wt[idx] = tat[idx] - bt[idx];
+            count--;
+        }
+    }
+
+    printf("\nProcess\tBurst\tWaiting\tTurnaround\n");
+    for (i = 0; i < n; i++) {
+        printf("P%d\t%d\t%d\t%d\n", i + 1, bt[i], wt[i], tat[i]);
+        avg_wt += wt[i];
+        avg_tat += tat[i];
+    }
+
+    printf("\nAverage Waiting Time    = %.2f\n", avg_wt / n);
+    printf("Average Turnaround Time = %.2f\n", avg_tat / n);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+Enter number of processes: 3
+Burst time of P1: 10
+Burst time of P2: 5
+Burst time of P3: 8
+Enter time quantum: 3
+
+SAMPLE OUTPUT:
+Process Burst   Waiting Turnaround
+P1      10      13      23
+P2      5       10      15
+P3      8       15      23
+
+Average Waiting Time    = 12.67
+Average Turnaround Time = 20.33

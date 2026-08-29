@@ -1,0 +1,52 @@
+EXPERIMENT 37 — FCFS Disk Scheduling
+======================================================================
+
+AIM:
+To simulate the First Come First Served (FCFS) disk scheduling algorithm using C.
+
+ALGORITHM:
+1. Read the disk request queue and the initial head position.
+2. Service requests strictly in the order they appear in the queue.
+3. For each request, add the absolute difference between the current head position and the request to the total head movement, then move the head to that request.
+4. Display the seek sequence and the total head movement.
+5. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n, head, total = 0;
+    int req[100];
+
+    printf("Enter number of requests: ");
+    scanf("%d", &n);
+    printf("Enter the requests:\n");
+    for (int i = 0; i < n; i++) scanf("%d", &req[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    printf("\nSeek Sequence: %d", head);
+    for (int i = 0; i < n; i++) {
+        total += abs(req[i] - head);
+        head = req[i];
+        printf(" -> %d", head);
+    }
+
+    printf("\n\nTotal Head Movement = %d\n", total);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+Enter number of requests: 8
+Enter the requests: 98 183 37 122 14 124 65 67
+Enter initial head position: 53
+
+SAMPLE OUTPUT:
+Seek Sequence: 53 -> 98 -> 183 -> 37 -> 122 -> 14 -> 124 -> 65 -> 67
+
+Total Head Movement = 640

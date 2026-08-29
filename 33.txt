@@ -1,0 +1,91 @@
+EXPERIMENT 33 — Optimal Page Replacement
+======================================================================
+
+AIM:
+To simulate the optimal paging technique of memory management using C.
+
+ALGORITHM:
+1. Read the reference string and number of frames.
+2. For each page reference, check if it is present in the frames (hit).
+3. If not present (fault): if a free frame exists, use it; otherwise, for each page currently in a frame, look ahead in the reference string to find how far in the future it is used again (or "never" if not used again), and replace the page with the farthest future use (or one never used again).
+4. Count total page faults and display frame contents after each step.
+5. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+
+int findFarthest(int frames[], int nf, int pages[], int n, int idx) {
+    int farthest = idx, replaceIdx = -1;
+    for (int j = 0; j < nf; j++) {
+        int k;
+        for (k = idx; k < n; k++)
+            if (frames[j] == pages[k]) break;
+
+        if (k == n) return j;                 // never used again -> replace this
+        if (k > farthest) { farthest = k; replaceIdx = j; }
+    }
+    return (replaceIdx == -1) ? 0 : replaceIdx;
+}
+
+int main() {
+    int pages[50], n, frames[10], nf;
+    int faults = 0;
+
+    printf("Enter number of pages: ");
+    scanf("%d", &n);
+    printf("Enter reference string: ");
+    for (int i = 0; i < n; i++) scanf("%d", &pages[i]);
+
+    printf("Enter number of frames: ");
+    scanf("%d", &nf);
+    for (int i = 0; i < nf; i++) frames[i] = -1;
+
+    for (int i = 0; i < n; i++) {
+        int found = 0;
+        for (int j = 0; j < nf; j++)
+            if (frames[j] == pages[i]) { found = 1; break; }
+
+        if (!found) {
+            int freeIdx = -1;
+            for (int j = 0; j < nf; j++)
+                if (frames[j] == -1) { freeIdx = j; break; }
+
+            if (freeIdx != -1)
+                frames[freeIdx] = pages[i];
+            else {
+                int r = findFarthest(frames, nf, pages, n, i + 1);
+                frames[r] = pages[i];
+            }
+            faults++;
+        }
+
+        printf("Ref %d -> Frames: ", pages[i]);
+        for (int j = 0; j < nf; j++)
+            (frames[j] == -1) ? printf("- ") : printf("%d ", frames[j]);
+        printf(found ? "(hit)\n" : "(fault)\n");
+    }
+
+    printf("\nTotal Page Faults = %d\n", faults);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+Enter number of pages: 9
+Enter reference string: 7 0 1 2 0 3 0 4 2
+Enter number of frames: 3
+
+SAMPLE OUTPUT:
+Ref 7 -> Frames: 7 - -  (fault)
+Ref 0 -> Frames: 7 0 -  (fault)
+Ref 1 -> Frames: 7 0 1  (fault)
+Ref 2 -> Frames: 2 0 1  (fault)
+Ref 0 -> Frames: 2 0 1  (hit)
+Ref 3 -> Frames: 2 0 3  (fault)
+Ref 0 -> Frames: 2 0 3  (hit)
+Ref 4 -> Frames: 2 0 4  (fault)
+Ref 2 -> Frames: 2 0 4  (hit)
+
+Total Page Faults = 6

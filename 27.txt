@@ -1,0 +1,50 @@
+EXPERIMENT 27 — Simulation of the `ls` UNIX Command
+======================================================================
+
+AIM:
+To simulate the function of the `ls` UNIX command using a C program.
+
+ALGORITHM:
+1. Accept a directory path (default to current directory `"."`).
+2. Open the directory using `opendir()`.
+3. Repeatedly read entries using `readdir()`.
+4. Print each entry's name (skip hidden files if simulating plain `ls`).
+5. Close the directory using `closedir()`.
+6. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <dirent.h>
+#include <string.h>
+
+int main(int argc, char *argv[]) {
+    char *path = (argc > 1) ? argv[1] : ".";
+    DIR *dir = opendir(path);
+    struct dirent *entry;
+
+    if (dir == NULL) {
+        perror("opendir");
+        return 1;
+    }
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_name[0] == '.') continue;   // skip hidden files, like plain ls
+        printf("%s\n", entry->d_name);
+    }
+
+    closedir(dir);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+netsense
+fraud_detection
+report.docx
+myls.c
+a.out

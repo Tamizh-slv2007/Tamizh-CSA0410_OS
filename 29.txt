@@ -1,0 +1,92 @@
+EXPERIMENT 29 — Classical Process Synchronization Problem (Sleeping Barber)
+======================================================================
+
+AIM:
+To simulate the solution of a classical process synchronization problem — the Sleeping Barber problem — using C.
+
+ALGORITHM:
+1. There is one barber, one barber chair, and `N` waiting chairs.
+2. Use semaphore `customers` (counts waiting customers), `barber_ready` (signals the barber is ready), and a mutex to protect the waiting-count variable.
+3. **Barber:** wait(customers) → wait(mutex) → decrement waiting count → signal(barber_ready) → signal(mutex) → cut hair.
+4. **Customer:** wait(mutex); if waiting seats are free, increment waiting count, signal(customers), release mutex, wait(barber_ready), get haircut; else leave.
+5. Run one barber thread and several customer threads to demonstrate the solution.
+6. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+
+#define CHAIRS 3
+
+sem_t customers, barber_ready;
+pthread_mutex_t mutex;
+int waiting = 0;
+
+void *barber(void *arg) {
+    for (int i = 0; i < 5; i++) {
+        sem_wait(&customers);
+        pthread_mutex_lock(&mutex);
+        waiting--;
+        sem_post(&barber_ready);
+        pthread_mutex_unlock(&mutex);
+
+        printf("Barber is cutting hair...\n");
+        sleep(1);
+    }
+    return NULL;
+}
+
+void *customer(void *arg) {
+    int id = *(int *) arg;
+    pthread_mutex_lock(&mutex);
+    if (waiting < CHAIRS) {
+        waiting++;
+        printf("Customer %d takes a waiting seat.\n", id);
+        sem_post(&customers);
+        pthread_mutex_unlock(&mutex);
+
+        sem_wait(&barber_ready);
+        printf("Customer %d is getting a haircut.\n", id);
+    } else {
+        pthread_mutex_unlock(&mutex);
+        printf("Customer %d leaves (no seats available).\n", id);
+    }
+    return NULL;
+}
+
+int main() {
+    pthread_t barberThread, custThread[5];
+    int ids[5] = {1, 2, 3, 4, 5};
+
+    sem_init(&customers, 0, 0);
+    sem_init(&barber_ready, 0, 0);
+    pthread_mutex_init(&mutex, NULL);
+
+    pthread_create(&barberThread, NULL, barber, NULL);
+    for (int i = 0; i < 5; i++) {
+        pthread_create(&custThread[i], NULL, customer, &ids[i]);
+        usleep(300000);
+    }
+
+    for (int i = 0; i < 5; i++) pthread_join(custThread[i], NULL);
+    pthread_join(barberThread, NULL);
+
+    printf("Shop closed.\n");
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+Customer 1 takes a waiting seat.
+Barber is cutting hair...
+Customer 1 is getting a haircut.
+Customer 2 takes a waiting seat.
+...
+Shop closed.

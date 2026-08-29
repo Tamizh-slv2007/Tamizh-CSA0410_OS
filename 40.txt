@@ -1,0 +1,76 @@
+EXPERIMENT 40 — File Access Permissions and Users in Linux
+======================================================================
+
+AIM:
+To illustrate the various file access permissions and different types of users (owner, group, others) in Linux using a C program.
+
+ALGORITHM:
+1. Accept a file name from the user.
+2. Retrieve file metadata using `stat()`.
+3. Decode the permission bits (`st_mode`) for owner, group and others (read/write/execute) using bitwise checks against `S_IRUSR`, `S_IWUSR`, `S_IXUSR`, and the corresponding group/other macros.
+4. Retrieve owner and group names using `getpwuid()` and `getgrgid()` with `st_uid` / `st_gid`.
+5. Display the permission string (e.g., `-rwxr-xr--`) along with owner/group information.
+6. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <sys/stat.h>
+#include <pwd.h>
+#include <grp.h>
+
+void printPermissions(mode_t mode) {
+    char perms[11];
+    perms[0] = S_ISDIR(mode) ? 'd' : '-';
+
+    perms[1] = (mode & S_IRUSR) ? 'r' : '-';
+    perms[2] = (mode & S_IWUSR) ? 'w' : '-';
+    perms[3] = (mode & S_IXUSR) ? 'x' : '-';
+
+    perms[4] = (mode & S_IRGRP) ? 'r' : '-';
+    perms[5] = (mode & S_IWGRP) ? 'w' : '-';
+    perms[6] = (mode & S_IXGRP) ? 'x' : '-';
+
+    perms[7] = (mode & S_IROTH) ? 'r' : '-';
+    perms[8] = (mode & S_IWOTH) ? 'w' : '-';
+    perms[9] = (mode & S_IXOTH) ? 'x' : '-';
+
+    perms[10] = '\0';
+    printf("Permissions: %s\n", perms);
+}
+
+int main() {
+    char filename[100];
+    struct stat st;
+
+    printf("Enter file name: ");
+    scanf("%s", filename);
+
+    if (stat(filename, &st) < 0) {
+        perror("stat");
+        return 1;
+    }
+
+    printPermissions(st.st_mode);
+
+    struct passwd *pw = getpwuid(st.st_uid);
+    struct group *gr = getgrgid(st.st_gid);
+
+    printf("Owner : %s\n", pw ? pw->pw_name : "unknown");
+    printf("Group : %s\n", gr ? gr->gr_name : "unknown");
+    printf("Size  : %ld bytes\n", (long) st.st_size);
+
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+Enter file name: perms.c
+Permissions: -rw-r--r--
+Owner : tamizh
+Group : tamizh
+Size  : 1184 bytes

@@ -1,0 +1,51 @@
+EXPERIMENT 11 — Multithreading using C
+======================================================================
+
+AIM:
+To illustrate the concept of multithreading using a C program (POSIX threads).
+
+ALGORITHM:
+1. Start the program.
+2. Create two or more threads using `pthread_create()`, each running a separate function.
+3. Each thread performs its task (e.g., prints its ID and a message).
+4. Wait for all threads to finish using `pthread_join()`.
+5. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <pthread.h>
+
+void *thread_function(void *arg) {
+    long id = (long) arg;
+    printf("Thread %ld is running (Thread ID: %lu)\n", id, pthread_self());
+    return NULL;
+}
+
+int main() {
+    int n = 3;
+    pthread_t threads[10];
+    long i;
+
+    for (i = 0; i < n; i++) {
+        pthread_create(&threads[i], NULL, thread_function, (void *) i);
+    }
+
+    for (i = 0; i < n; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    printf("All threads completed.\n");
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+Thread 0 is running (Thread ID: 140234567890688)
+Thread 1 is running (Thread ID: 140234559497984)
+Thread 2 is running (Thread ID: 140234551105280)
+All threads completed.

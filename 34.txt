@@ -1,0 +1,59 @@
+EXPERIMENT 34 — Sequential File Allocation Strategy
+======================================================================
+
+AIM:
+To simulate a file allocation strategy where records of a file are stored one after another, both physically and logically, and a record can only be accessed by reading all preceding records (sequential allocation).
+
+ALGORITHM:
+1. Represent the disk as an array of blocks.
+2. To allocate a file, find a contiguous run of `n` free blocks and mark them as belonging to the file, storing the start block and length.
+3. To access the `k`-th record, simulate reading blocks `start, start+1, ..., start+k-1` in order (i.e., all previous records must be read first).
+4. Display allocation table (file, start block, length) and the sequence of blocks accessed for a requested record.
+5. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+
+#define DISK_SIZE 20
+int disk[DISK_SIZE];
+
+int main() {
+    int n, start = 0;
+    printf("Enter number of records in the file: ");
+    scanf("%d", &n);
+
+    printf("Enter starting block number: ");
+    scanf("%d", &start);
+
+    for (int i = 0; i < n; i++)
+        disk[start + i] = 1;   // mark allocated
+
+    printf("\nFile allocated from block %d to block %d (sequential).\n", start, start + n - 1);
+
+    int k;
+    printf("\nEnter record number to access (1 to %d): ", n);
+    scanf("%d", &k);
+
+    printf("To access record %d, the following blocks must be read in order:\n", k);
+    for (int i = 0; i < k; i++)
+        printf("  Block %d (record %d)\n", start + i, i + 1);
+
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+Enter number of records in the file: 5
+Enter starting block number: 2
+Enter record number to access (1 to 5): 4
+
+SAMPLE OUTPUT:
+File allocated from block 2 to block 6 (sequential).
+
+To access record 4, the following blocks must be read in order:
+  Block 2 (record 1)
+  Block 3 (record 2)
+  Block 4 (record 3)
+  Block 5 (record 4)

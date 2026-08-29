@@ -1,0 +1,106 @@
+EXPERIMENT 14 — Single Level Directory File Organization
+======================================================================
+
+AIM:
+To organize files using a single level directory structure with a C program.
+
+ALGORITHM:
+1. Maintain a single array (directory) of file names.
+2. Provide menu options: Create file, Delete file, Search file, Display directory.
+3. On "Create", check the name does not already exist, then add it.
+4. On "Delete", remove the matching entry.
+5. On "Search", check for the presence of the file name.
+6. On "Display", list all file names in the directory.
+7. Repeat until user chooses to exit.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 20
+char directory[MAX][30];
+int count = 0;
+
+void createFile(char *name) {
+    for (int i = 0; i < count; i++)
+        if (strcmp(directory[i], name) == 0) {
+            printf("File already exists.\n");
+            return;
+        }
+    strcpy(directory[count++], name);
+    printf("File '%s' created.\n", name);
+}
+
+void deleteFile(char *name) {
+    for (int i = 0; i < count; i++)
+        if (strcmp(directory[i], name) == 0) {
+            for (int j = i; j < count - 1; j++)
+                strcpy(directory[j], directory[j + 1]);
+            count--;
+            printf("File '%s' deleted.\n", name);
+            return;
+        }
+    printf("File not found.\n");
+}
+
+void searchFile(char *name) {
+    for (int i = 0; i < count; i++)
+        if (strcmp(directory[i], name) == 0) {
+            printf("File '%s' found.\n", name);
+            return;
+        }
+    printf("File '%s' not found.\n", name);
+}
+
+void displayDirectory() {
+    printf("Directory contents (%d files):\n", count);
+    for (int i = 0; i < count; i++)
+        printf("  %d. %s\n", i + 1, directory[i]);
+}
+
+int main() {
+    int choice;
+    char name[30];
+
+    do {
+        printf("\n1.Create 2.Delete 3.Search 4.Display 5.Exit\nChoice: ");
+        scanf("%d", &choice);
+        if (choice >= 1 && choice <= 3) {
+            printf("Enter file name: ");
+            scanf("%s", name);
+        }
+        switch (choice) {
+            case 1: createFile(name); break;
+            case 2: deleteFile(name); break;
+            case 3: searchFile(name); break;
+            case 4: displayDirectory(); break;
+            case 5: printf("Exiting.\n"); break;
+            default: printf("Invalid choice.\n");
+        }
+    } while (choice != 5);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+1.Create 2.Delete 3.Search 4.Display 5.Exit
+Choice: 1
+Enter file name: report.txt
+File 'report.txt' created.
+
+Choice: 1
+Enter file name: data.csv
+File 'data.csv' created.
+
+Choice: 4
+Directory contents (2 files):
+  1. report.txt
+  2. data.csv
+
+Choice: 5
+Exiting.

@@ -1,0 +1,59 @@
+EXPERIMENT 28 — Simulation of the `grep` UNIX Command
+======================================================================
+
+AIM:
+To simulate the `grep` UNIX command using a C program.
+
+ALGORITHM:
+1. Accept a search pattern and a file name as arguments.
+2. Open the file for reading.
+3. Read the file line by line.
+4. Use `strstr()` to check whether the pattern occurs in the line.
+5. If found, print the line (optionally with its line number).
+6. Close the file.
+7. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <string.h>
+
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        printf("Usage: %s <pattern> <filename>\n", argv[0]);
+        return 1;
+    }
+
+    char *pattern = argv[1];
+    FILE *fp = fopen(argv[2], "r");
+    if (fp == NULL) {
+        perror("fopen");
+        return 1;
+    }
+
+    char line[500];
+    int lineno = 0, matches = 0;
+
+    while (fgets(line, sizeof(line), fp)) {
+        lineno++;
+        if (strstr(line, pattern) != NULL) {
+            printf("%d: %s", lineno, line);
+            matches++;
+        }
+    }
+
+    fclose(fp);
+    printf("\n%d matching line(s) found.\n", matches);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+1: Create a new process by invoking the appropriate system call.
+6: Construct a C program to implement pre-emptive priority scheduling algorithm.
+
+2 matching line(s) found.

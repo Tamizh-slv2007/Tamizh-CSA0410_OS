@@ -1,0 +1,78 @@
+EXPERIMENT 36 — Linked File Allocation Strategy
+======================================================================
+
+AIM:
+To simulate the linked allocation strategy, where each file is a linked list of disk blocks that may be scattered anywhere on the disk, the directory holds pointers to the first and last blocks, and each block holds a pointer to the next block.
+
+ALGORITHM:
+1. Read the number of blocks `n` in the file and the (possibly non-contiguous) block numbers, in order.
+2. Store, for each block, a "next" pointer to the following block's number; the last block's next pointer is set to −1 (NULL).
+3. Record the first block and last block in the directory entry.
+4. To read the file, start at the first block and follow the next pointers until −1 is reached, printing each block visited.
+5. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+
+#define MAX 20
+
+int main() {
+    int n, blockNo[MAX], next[MAX];
+
+    printf("Enter number of blocks in the file: ");
+    scanf("%d", &n);
+
+    printf("Enter block numbers (in file order, may be scattered):\n");
+    for (int i = 0; i < n; i++) {
+        printf("  Block %d: ", i + 1);
+        scanf("%d", &blockNo[i]);
+    }
+
+    for (int i = 0; i < n - 1; i++)
+        next[i] = blockNo[i + 1];
+    next[n - 1] = -1;   // last block points to NULL
+
+    printf("\nDirectory Entry -> First Block: %d, Last Block: %d\n", blockNo[0], blockNo[n - 1]);
+
+    printf("\nBlock\tNext Pointer\n");
+    for (int i = 0; i < n; i++)
+        printf("%d\t%d\n", blockNo[i], next[i]);
+
+    printf("\nTraversing the file from the first block:\n");
+    int cur = 0;
+    while (cur != -1) {
+        printf("Visiting block %d\n", blockNo[cur]);
+        int nxt = next[cur];
+        if (nxt == -1) break;
+        // find index of nxt in blockNo[]
+        for (int j = 0; j < n; j++)
+            if (blockNo[j] == nxt) { cur = j; break; }
+    }
+
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+Enter number of blocks in the file: 4
+Block 1: 9
+Block 2: 16
+Block 3: 1
+Block 4: 10
+
+SAMPLE OUTPUT:
+Directory Entry -> First Block: 9, Last Block: 10
+
+Block   Next Pointer
+9       16
+16      1
+1       10
+10      -1
+
+Traversing the file from the first block:
+Visiting block 9
+Visiting block 16
+Visiting block 1
+Visiting block 10

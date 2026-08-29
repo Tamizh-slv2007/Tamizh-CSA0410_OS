@@ -1,0 +1,65 @@
+EXPERIMENT 23 — First Fit Memory Allocation
+======================================================================
+
+AIM:
+To implement the first fit algorithm of memory management using C.
+
+ALGORITHM:
+1. Read block sizes and process sizes.
+2. For each process, scan blocks in order and allocate it to the **first** block whose size is ≥ process size.
+3. Reduce the block's available size accordingly.
+4. If no block is large enough, mark the process as not allocated.
+5. Display the allocation table.
+6. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+
+int main() {
+    int m, n;
+    printf("Enter number of blocks: ");
+    scanf("%d", &m);
+    int block[20];
+    printf("Enter block sizes: ");
+    for (int i = 0; i < m; i++) scanf("%d", &block[i]);
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+    int process[20], allocation[20];
+    printf("Enter process sizes: ");
+    for (int i = 0; i < n; i++) { scanf("%d", &process[i]); allocation[i] = -1; }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (block[j] >= process[i]) {
+                allocation[i] = j;
+                block[j] -= process[i];
+                break;
+            }
+        }
+    }
+
+    printf("\nProcess No.\tProcess Size\tBlock No.\n");
+    for (int i = 0; i < n; i++) {
+        if (allocation[i] != -1)
+            printf("P%d\t\t%d\t\t%d\n", i + 1, process[i], allocation[i] + 1);
+        else
+            printf("P%d\t\t%d\t\tNot Allocated\n", i + 1, process[i]);
+    }
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+Enter number of blocks: 4
+Enter block sizes: 100 500 200 300
+Enter number of processes: 3
+Enter process sizes: 90 250 100
+
+SAMPLE OUTPUT:
+Process No.     Process Size    Block No.
+P1              90              1
+P2              250             2
+P3              100             2

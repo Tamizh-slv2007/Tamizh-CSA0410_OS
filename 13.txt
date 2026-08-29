@@ -1,0 +1,132 @@
+EXPERIMENT 13 — Memory Allocation Strategies (First Fit, Best Fit, Worst Fit)
+======================================================================
+
+AIM:
+To implement the various contiguous memory allocation strategies — First Fit, Best Fit and Worst Fit — using a C program.
+
+ALGORITHM:
+1. Read the number of memory blocks and their sizes, and the number of processes and their sizes.
+2. **First Fit:** allocate each process to the first block whose size is ≥ process size.
+3. **Best Fit:** allocate each process to the smallest block whose size is ≥ process size.
+4. **Worst Fit:** allocate each process to the largest available block whose size is ≥ process size.
+5. Mark allocated blocks as used (or shrink them) and display the allocation table for each strategy.
+6. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+
+void firstFit(int bsize[], int m, int psize[], int n) {
+    int allocation[20], block[20];
+    for (int i = 0; i < m; i++) block[i] = bsize[i];
+    for (int i = 0; i < n; i++) allocation[i] = -1;
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            if (block[j] >= psize[i]) {
+                allocation[i] = j;
+                block[j] -= psize[i];
+                break;
+            }
+
+    printf("\n-- First Fit --\nProcess\tSize\tBlock\n");
+    for (int i = 0; i < n; i++)
+        printf("P%d\t%d\t%s\n", i + 1, psize[i],
+               allocation[i] != -1 ? "Allocated" : "Not Allocated");
+}
+
+void bestFit(int bsize[], int m, int psize[], int n) {
+    int allocation[20], block[20];
+    for (int i = 0; i < m; i++) block[i] = bsize[i];
+    for (int i = 0; i < n; i++) allocation[i] = -1;
+
+    for (int i = 0; i < n; i++) {
+        int bestIdx = -1;
+        for (int j = 0; j < m; j++)
+            if (block[j] >= psize[i])
+                if (bestIdx == -1 || block[j] < block[bestIdx])
+                    bestIdx = j;
+        if (bestIdx != -1) {
+            allocation[i] = bestIdx;
+            block[bestIdx] -= psize[i];
+        }
+    }
+
+    printf("\n-- Best Fit --\nProcess\tSize\tBlock\n");
+    for (int i = 0; i < n; i++)
+        printf("P%d\t%d\t%s\n", i + 1, psize[i],
+               allocation[i] != -1 ? "Allocated" : "Not Allocated");
+}
+
+void worstFit(int bsize[], int m, int psize[], int n) {
+    int allocation[20], block[20];
+    for (int i = 0; i < m; i++) block[i] = bsize[i];
+    for (int i = 0; i < n; i++) allocation[i] = -1;
+
+    for (int i = 0; i < n; i++) {
+        int worstIdx = -1;
+        for (int j = 0; j < m; j++)
+            if (block[j] >= psize[i])
+                if (worstIdx == -1 || block[j] > block[worstIdx])
+                    worstIdx = j;
+        if (worstIdx != -1) {
+            allocation[i] = worstIdx;
+            block[worstIdx] -= psize[i];
+        }
+    }
+
+    printf("\n-- Worst Fit --\nProcess\tSize\tBlock\n");
+    for (int i = 0; i < n; i++)
+        printf("P%d\t%d\t%s\n", i + 1, psize[i],
+               allocation[i] != -1 ? "Allocated" : "Not Allocated");
+}
+
+int main() {
+    int m, n;
+    int bsize[20], psize[20];
+
+    printf("Enter number of memory blocks: ");
+    scanf("%d", &m);
+    printf("Enter sizes of blocks:\n");
+    for (int i = 0; i < m; i++) scanf("%d", &bsize[i]);
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+    printf("Enter sizes of processes:\n");
+    for (int i = 0; i < n; i++) scanf("%d", &psize[i]);
+
+    firstFit(bsize, m, psize, n);
+    bestFit(bsize, m, psize, n);
+    worstFit(bsize, m, psize, n);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+Enter number of memory blocks: 5
+Enter sizes of blocks: 100 500 200 300 600
+Enter number of processes: 4
+Enter sizes of processes: 212 417 112 426
+
+SAMPLE OUTPUT:
+-- First Fit --
+Process Size    Block
+P1      212     Allocated
+P2      417     Allocated
+P3      112     Allocated
+P4      426     Not Allocated
+
+-- Best Fit --
+Process Size    Block
+P1      212     Allocated
+P2      417     Allocated
+P3      112     Allocated
+P4      426     Allocated
+
+-- Worst Fit --
+Process Size    Block
+P1      212     Allocated
+P2      417     Allocated
+P3      112     Allocated
+P4      426     Not Allocated

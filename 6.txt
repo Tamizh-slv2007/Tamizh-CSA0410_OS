@@ -1,0 +1,88 @@
+EXPERIMENT 6 — Preemptive Priority Scheduling
+======================================================================
+
+AIM:
+To implement the preemptive priority scheduling algorithm using C.
+
+ALGORITHM:
+1. Start the program.
+2. Read `n` processes with arrival time, burst time and priority.
+3. At every unit of time, among all arrived and unfinished processes, pick the one with the highest priority (lowest number) and execute it for one time unit.
+4. Decrease its remaining burst time by 1.
+5. Repeat until all processes are finished, recording completion time.
+6. Compute turnaround time = completion − arrival, waiting time = turnaround − burst.
+7. Display results and averages.
+8. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#define MAX 20
+
+int main() {
+    int n, i, at[MAX], bt[MAX], pr[MAX], rem[MAX];
+    int ct[MAX], tat[MAX], wt[MAX];
+    int completed = 0, time = 0, idx;
+    float avg_wt = 0, avg_tat = 0;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    for (i = 0; i < n; i++) {
+        printf("Arrival, Burst, Priority of P%d: ", i + 1);
+        scanf("%d %d %d", &at[i], &bt[i], &pr[i]);
+        rem[i] = bt[i];
+    }
+
+    while (completed != n) {
+        idx = -1;
+        int highest = 9999;
+        for (i = 0; i < n; i++) {
+            if (at[i] <= time && rem[i] > 0 && pr[i] < highest) {
+                highest = pr[i];
+                idx = i;
+            }
+        }
+        if (idx == -1) {
+            time++;
+            continue;
+        }
+        rem[idx]--;
+        time++;
+        if (rem[idx] == 0) {
+            completed++;
+            ct[idx] = time;
+            tat[idx] = ct[idx] - at[idx];
+            wt[idx] = tat[idx] - bt[idx];
+        }
+    }
+
+    printf("\nProcess\tArrival\tBurst\tPriority\tCompletion\tTurnaround\tWaiting\n");
+    for (i = 0; i < n; i++) {
+        printf("P%d\t%d\t%d\t%d\t\t%d\t\t%d\t\t%d\n",
+               i + 1, at[i], bt[i], pr[i], ct[i], tat[i], wt[i]);
+        avg_wt += wt[i];
+        avg_tat += tat[i];
+    }
+
+    printf("\nAverage Waiting Time    = %.2f\n", avg_wt / n);
+    printf("Average Turnaround Time = %.2f\n", avg_tat / n);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+Enter number of processes: 3
+Arrival, Burst, Priority of P1: 0 10 2
+Arrival, Burst, Priority of P2: 1 1 1
+Arrival, Burst, Priority of P3: 2 2 3
+
+SAMPLE OUTPUT:
+Process Arrival Burst   Priority        Completion   Turnaround   Waiting
+P1      0       10      2               13           13           3
+P2      1       1       1               2            1            0
+P3      2       2       3               15           13           11
+
+Average Waiting Time    = 4.67
+Average Turnaround Time = 9.00

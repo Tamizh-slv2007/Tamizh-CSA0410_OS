@@ -1,0 +1,58 @@
+EXPERIMENT 1 — Process Creation using fork(), getpid(), getppid()
+======================================================================
+
+AIM:
+To create a new process using the `fork()` system call and to display the process ID (PID) of the currently running process along with its parent process ID (PPID) using a C program.
+
+ALGORITHM:
+1. Start the program.
+2. Call `fork()` to create a child process.
+3. If the return value is 0, the code is executing in the child process.
+4. If the return value is greater than 0, the code is executing in the parent process.
+5. In each process print `getpid()` (own PID) and `getppid()` (parent PID).
+6. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+
+int main() {
+    pid_t pid;
+
+    printf("Before fork: PID = %d\n", getpid());
+
+    pid = fork();
+
+    if (pid < 0) {
+        fprintf(stderr, "Fork failed\n");
+        return 1;
+    } else if (pid == 0) {
+        // Child process
+        printf("Child Process:\n");
+        printf("  My PID  = %d\n", getpid());
+        printf("  My PPID = %d\n", getppid());
+    } else {
+        // Parent process
+        sleep(1); // let child finish printing first
+        printf("Parent Process:\n");
+        printf("  My PID  = %d\n", getpid());
+        printf("  My Child's PID = %d\n", pid);
+    }
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+Before fork: PID = 4821
+Child Process:
+  My PID  = 4822
+  My PPID = 4821
+Parent Process:
+  My PID  = 4821
+  My Child's PID = 4822

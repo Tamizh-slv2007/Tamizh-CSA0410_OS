@@ -1,0 +1,91 @@
+EXPERIMENT 20 — Reader-Writer Problem using Semaphores
+======================================================================
+
+AIM:
+To simulate the Reader-Writer problem using semaphores in a C program (readers-preference variant).
+
+ALGORITHM:
+1. Maintain a semaphore `wrt` (mutual exclusion for writers) and a semaphore/mutex `mutex` protecting a shared `read_count`.
+2. **Reader:** wait(mutex); read_count++; if read_count == 1, wait(wrt); signal(mutex); read the shared data; wait(mutex); read_count--; if read_count == 0, signal(wrt); signal(mutex).
+3. **Writer:** wait(wrt); write the shared data; signal(wrt).
+4. Run several reader and writer threads concurrently and observe that multiple readers can read together but a writer gets exclusive access.
+5. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+
+sem_t wrt;
+pthread_mutex_t mutex;
+int read_count = 0;
+int shared_data = 0;
+
+void *reader(void *arg) {
+    int id = *(int *) arg;
+
+    pthread_mutex_lock(&mutex);
+    read_count++;
+    if (read_count == 1) sem_wait(&wrt);
+    pthread_mutex_unlock(&mutex);
+
+    printf("Reader %d reads shared_data = %d\n", id, shared_data);
+    sleep(1);
+
+    pthread_mutex_lock(&mutex);
+    read_count--;
+    if (read_count == 0) sem_post(&wrt);
+    pthread_mutex_unlock(&mutex);
+
+    return NULL;
+}
+
+void *writer(void *arg) {
+    int id = *(int *) arg;
+
+    sem_wait(&wrt);
+    shared_data++;
+    printf("Writer %d writes shared_data = %d\n", id, shared_data);
+    sleep(1);
+    sem_post(&wrt);
+
+    return NULL;
+}
+
+int main() {
+    pthread_t r[3], w[2];
+    int rid[3] = {1, 2, 3}, wid[2] = {1, 2};
+
+    sem_init(&wrt, 0, 1);
+    pthread_mutex_init(&mutex, NULL);
+
+    pthread_create(&w[0], NULL, writer, &wid[0]);
+    pthread_create(&r[0], NULL, reader, &rid[0]);
+    pthread_create(&r[1], NULL, reader, &rid[1]);
+    pthread_create(&w[1], NULL, writer, &wid[1]);
+    pthread_create(&r[2], NULL, reader, &rid[2]);
+
+    pthread_join(w[0], NULL);
+    pthread_join(r[0], NULL);
+    pthread_join(r[1], NULL);
+    pthread_join(w[1], NULL);
+    pthread_join(r[2], NULL);
+
+    printf("Final shared_data = %d\n", shared_data);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+Writer 1 writes shared_data = 1
+Reader 1 reads shared_data = 1
+Reader 2 reads shared_data = 1
+Writer 2 writes shared_data = 2
+Reader 3 reads shared_data = 2
+Final shared_data = 2

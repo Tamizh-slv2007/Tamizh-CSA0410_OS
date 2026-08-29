@@ -1,0 +1,90 @@
+EXPERIMENT 26 — File Management Operations
+======================================================================
+
+AIM:
+To implement basic file management operations — create, write, read, rename and delete — using a C program.
+
+ALGORITHM:
+1. Provide a menu with options: Create, Write, Read, Rename, Delete, Exit.
+2. **Create:** open the file with `"w"` mode.
+3. **Write:** append text supplied by the user using `fprintf()`.
+4. **Read:** open with `"r"` and print contents using `fgets()` in a loop.
+5. **Rename:** use `rename(oldname, newname)`.
+6. **Delete:** use `remove(filename)`.
+7. Repeat until Exit is chosen.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+
+int main() {
+    char fname[50], newname[50], text[200];
+    int choice;
+    FILE *fp;
+
+    do {
+        printf("\n1.Create 2.Write 3.Read 4.Rename 5.Delete 6.Exit\nChoice: ");
+        scanf("%d", &choice);
+        getchar();
+
+        switch (choice) {
+            case 1:
+                printf("Enter file name: "); scanf("%s", fname);
+                fp = fopen(fname, "w");
+                fclose(fp);
+                printf("File created.\n");
+                break;
+            case 2:
+                printf("Enter file name: "); scanf("%s", fname);
+                getchar();
+                printf("Enter text: ");
+                fgets(text, sizeof(text), stdin);
+                fp = fopen(fname, "a");
+                fputs(text, fp);
+                fclose(fp);
+                printf("Text written.\n");
+                break;
+            case 3:
+                printf("Enter file name: "); scanf("%s", fname);
+                fp = fopen(fname, "r");
+                printf("Contents:\n");
+                while (fgets(text, sizeof(text), fp)) printf("%s", text);
+                fclose(fp);
+                break;
+            case 4:
+                printf("Enter old and new name: ");
+                scanf("%s %s", fname, newname);
+                rename(fname, newname);
+                printf("File renamed.\n");
+                break;
+            case 5:
+                printf("Enter file name to delete: "); scanf("%s", fname);
+                remove(fname);
+                printf("File deleted.\n");
+                break;
+        }
+    } while (choice != 6);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+Choice: 1
+Enter file name: notes.txt
+File created.
+
+Choice: 2
+Enter file name: notes.txt
+Enter text: OS Lab file management demo
+Text written.
+
+Choice: 3
+Enter file name: notes.txt
+Contents:
+OS Lab file management demo
+
+Choice: 6

@@ -1,0 +1,64 @@
+EXPERIMENT 35 — Indexed File Allocation Strategy
+======================================================================
+
+AIM:
+To simulate a file allocation strategy where all file block pointers are collected into an index block — the *i*-th entry of the index block points to the *i*-th block of the file (indexed allocation).
+
+ALGORITHM:
+1. Read the number of blocks `n` required for a file.
+2. Allocate one index block, then allocate `n` data blocks (from the free block pool) whose block numbers are recorded in the index block, in order.
+3. To access the *i*-th block of the file, look up entry *i* of the index block directly (no need to traverse other blocks).
+4. Display the index block contents and demonstrate direct access to a requested block.
+5. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+
+int main() {
+    int n, indexBlock[20];
+
+    printf("Enter number of blocks for the file: ");
+    scanf("%d", &n);
+
+    printf("Enter block numbers to be pointed to by the index block:\n");
+    for (int i = 0; i < n; i++) {
+        printf("  Block %d: ", i);
+        scanf("%d", &indexBlock[i]);
+    }
+
+    printf("\nIndex Block Table:\n");
+    printf("Entry\tData Block\n");
+    for (int i = 0; i < n; i++)
+        printf("%d\t%d\n", i, indexBlock[i]);
+
+    int i;
+    printf("\nEnter block index to access directly: ");
+    scanf("%d", &i);
+    if (i >= 0 && i < n)
+        printf("Directly accessing data block %d via index entry %d.\n", indexBlock[i], i);
+    else
+        printf("Invalid index.\n");
+
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+Enter number of blocks for the file: 4
+Block 0: 9
+Block 1: 16
+Block 2: 1
+Block 3: 10
+Enter block index to access directly: 2
+
+SAMPLE OUTPUT:
+Index Block Table:
+Entry   Data Block
+0       9
+1       16
+2       1
+3       10
+
+Directly accessing data block 1 via index entry 2.

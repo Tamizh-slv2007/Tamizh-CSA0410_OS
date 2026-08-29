@@ -1,0 +1,88 @@
+EXPERIMENT 17 — Banker's Algorithm (Deadlock Avoidance)
+======================================================================
+
+AIM:
+To illustrate the deadlock avoidance concept by simulating Banker's Algorithm using C.
+
+ALGORITHM:
+1. Read number of processes `n`, number of resource types `m`, the Available vector, and the Max matrix.
+2. Compute Need[i][j] = Max[i][j] − Allocation[i][j].
+3. Find a process whose Need ≤ Available (for all resource types) and which has not been marked "finished".
+4. If found: add its Allocation to Available (simulate completion), mark it finished, add it to the safe sequence.
+5. Repeat step 3–4 until no such process exists.
+6. If all processes are finished, the system is in a safe state — display the safe sequence; otherwise report an unsafe state.
+7. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+
+int main() {
+    int n, m;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+    printf("Enter number of resource types: ");
+    scanf("%d", &m);
+
+    int alloc[20][10], maxm[20][10], need[20][10], avail[10];
+    int finish[20] = {0}, safeSeq[20], count = 0;
+
+    printf("Enter Allocation matrix:\n");
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            scanf("%d", &alloc[i][j]);
+
+    printf("Enter Max matrix:\n");
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            scanf("%d", &maxm[i][j]);
+
+    printf("Enter Available resources:\n");
+    for (int j = 0; j < m; j++)
+        scanf("%d", &avail[j]);
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            need[i][j] = maxm[i][j] - alloc[i][j];
+
+    int work[10];
+    for (int j = 0; j < m; j++) work[j] = avail[j];
+
+    int found;
+    while (count < n) {
+        found = 0;
+        for (int i = 0; i < n; i++) {
+            if (!finish[i]) {
+                int ok = 1;
+                for (int j = 0; j < m; j++)
+                    if (need[i][j] > work[j]) { ok = 0; break; }
+
+                if (ok) {
+                    for (int j = 0; j < m; j++) work[j] += alloc[i][j];
+                    safeSeq[count++] = i;
+                    finish[i] = 1;
+                    found = 1;
+                }
+            }
+        }
+        if (!found) break;
+    }
+
+    if (count == n) {
+        printf("\nSystem is in a SAFE state.\nSafe sequence: ");
+        for (int i = 0; i < n; i++)
+            printf("P%d%s", safeSeq[i], (i < n - 1) ? " -> " : "\n");
+    } else {
+        printf("\nSystem is NOT in a safe state (deadlock possible).\n");
+    }
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+System is in a SAFE state.
+Safe sequence: P1 -> P3 -> P4 -> P0 -> P2

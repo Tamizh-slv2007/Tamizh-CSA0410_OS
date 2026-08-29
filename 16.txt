@@ -1,0 +1,83 @@
+EXPERIMENT 16 — Random Access File Processing (Employee Details)
+======================================================================
+
+AIM:
+To implement random access file processing for employee details using a C program.
+
+ALGORITHM:
+1. Define a fixed-size `struct Employee` record (id, name, salary).
+2. Open the file in binary read/write mode (`"rb+"`; create with `"wb+"` if it does not exist).
+3. To write a record at a given position, use `fseek()` to move to `id * sizeof(struct Employee)` and `fwrite()` the record.
+4. To read a record, `fseek()` to the same offset and `fread()` it.
+5. Provide a menu to insert, update, and view a specific employee record directly by id, without reading the whole file sequentially.
+6. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <string.h>
+
+struct Employee {
+    int id;
+    char name[30];
+    float salary;
+};
+
+int main() {
+    FILE *fp;
+    struct Employee e;
+    int choice, id;
+
+    fp = fopen("employee.dat", "rb+");
+    if (fp == NULL) fp = fopen("employee.dat", "wb+");
+
+    do {
+        printf("\n1.Insert 2.View by ID 3.Update 4.Exit\nChoice: ");
+        scanf("%d", &choice);
+
+        if (choice == 1) {
+            printf("Enter ID, Name, Salary: ");
+            scanf("%d %s %f", &e.id, e.name, &e.salary);
+            fseek(fp, e.id * sizeof(e), SEEK_SET);
+            fwrite(&e, sizeof(e), 1, fp);
+            printf("Record inserted at position %d.\n", e.id);
+        } else if (choice == 2) {
+            printf("Enter ID to view: ");
+            scanf("%d", &id);
+            fseek(fp, id * sizeof(e), SEEK_SET);
+            fread(&e, sizeof(e), 1, fp);
+            if (e.id == id)
+                printf("ID: %d Name: %s Salary: %.2f\n", e.id, e.name, e.salary);
+            else
+                printf("No record found at ID %d.\n", id);
+        } else if (choice == 3) {
+            printf("Enter ID to update: ");
+            scanf("%d", &id);
+            printf("Enter new Name, Salary: ");
+            scanf("%s %f", e.name, &e.salary);
+            e.id = id;
+            fseek(fp, id * sizeof(e), SEEK_SET);
+            fwrite(&e, sizeof(e), 1, fp);
+            printf("Record updated.\n");
+        }
+    } while (choice != 4);
+
+    fclose(fp);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+Choice: 1
+Enter ID, Name, Salary: 101 Tamizh 55000
+Record inserted at position 101.
+
+Choice: 2
+Enter ID to view: 101
+ID: 101 Name: Tamizh Salary: 55000.00
+
+Choice: 4

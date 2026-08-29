@@ -1,0 +1,97 @@
+EXPERIMENT 15 — Two Level Directory Structure
+======================================================================
+
+AIM:
+To organize files using a two level directory structure (one sub-directory per user) with a C program.
+
+ALGORITHM:
+1. Maintain an array of users, each with its own array of file names (a master directory pointing to per-user directories).
+2. Provide options to create a user, create a file under a user, delete a file, and display the directory tree.
+3. On file operations, first locate the user's directory, then operate on that user's file list.
+4. Repeat until the user exits.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <string.h>
+
+#define MAXU 10
+#define MAXF 20
+
+char users[MAXU][20];
+char files[MAXU][MAXF][30];
+int fileCount[MAXU] = {0};
+int userCount = 0;
+
+int findUser(char *name) {
+    for (int i = 0; i < userCount; i++)
+        if (strcmp(users[i], name) == 0) return i;
+    return -1;
+}
+
+void createUser(char *name) {
+    if (findUser(name) != -1) { printf("User already exists.\n"); return; }
+    strcpy(users[userCount++], name);
+    printf("User directory '%s' created.\n", name);
+}
+
+void createFile(char *user, char *fname) {
+    int u = findUser(user);
+    if (u == -1) { printf("User not found.\n"); return; }
+    strcpy(files[u][fileCount[u]++], fname);
+    printf("File '%s' created under user '%s'.\n", fname, user);
+}
+
+void display() {
+    printf("\n----- Two Level Directory -----\n");
+    for (int i = 0; i < userCount; i++) {
+        printf("User: %s\n", users[i]);
+        for (int j = 0; j < fileCount[i]; j++)
+            printf("   |-- %s\n", files[i][j]);
+    }
+}
+
+int main() {
+    int choice;
+    char uname[20], fname[30];
+
+    do {
+        printf("\n1.Create User 2.Create File 3.Display 4.Exit\nChoice: ");
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1:
+                printf("Enter user name: "); scanf("%s", uname);
+                createUser(uname);
+                break;
+            case 2:
+                printf("Enter user name: "); scanf("%s", uname);
+                printf("Enter file name: "); scanf("%s", fname);
+                createFile(uname, fname);
+                break;
+            case 3: display(); break;
+            case 4: printf("Exiting.\n"); break;
+            default: printf("Invalid choice.\n");
+        }
+    } while (choice != 4);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+(no explicit input required — see sample output)
+
+SAMPLE OUTPUT:
+Choice: 1
+Enter user name: tamizh
+User directory 'tamizh' created.
+
+Choice: 2
+Enter user name: tamizh
+Enter file name: netsense.py
+File 'netsense.py' created under user 'tamizh'.
+
+Choice: 3
+----- Two Level Directory -----
+User: tamizh
+   |-- netsense.py

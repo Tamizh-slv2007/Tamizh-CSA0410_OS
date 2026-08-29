@@ -1,0 +1,75 @@
+EXPERIMENT 38 — SCAN Disk Scheduling
+======================================================================
+
+AIM:
+To simulate the SCAN (elevator) disk scheduling algorithm using C.
+
+ALGORITHM:
+1. Read the disk request queue, initial head position, direction of movement, and disk size.
+2. Sort the requests.
+3. Starting from the head, service all requests in the current direction up to the end of the disk (or until the last request in that direction), then reverse direction and service the remaining requests on the other side.
+4. Sum up the absolute head movements at each step.
+5. Display the seek sequence and total head movement.
+6. Stop.
+
+PROGRAM (copy-paste ready):
+----------------------------------------------------------------------
+#include <stdio.h>
+#include <stdlib.h>
+
+int cmp(const void *a, const void *b) { return (*(int *) a - *(int *) b); }
+
+int main() {
+    int n, head, diskSize, total = 0;
+    int req[100];
+    char dir;
+
+    printf("Enter number of requests: ");
+    scanf("%d", &n);
+    printf("Enter the requests:\n");
+    for (int i = 0; i < n; i++) scanf("%d", &req[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+    printf("Enter disk size: ");
+    scanf("%d", &diskSize);
+    printf("Enter direction (l for left / r for right): ");
+    scanf(" %c", &dir);
+
+    qsort(req, n, sizeof(int), cmp);
+
+    int left[100], right[100], li = 0, ri = 0;
+    for (int i = 0; i < n; i++) {
+        if (req[i] < head) left[li++] = req[i];
+        else right[ri++] = req[i];
+    }
+
+    printf("\nSeek Sequence: %d", head);
+
+    if (dir == 'r') {
+        for (int i = 0; i < ri; i++) { total += abs(right[i] - head); head = right[i]; printf(" -> %d", head); }
+        total += abs((diskSize - 1) - head); printf(" -> %d", diskSize - 1); head = diskSize - 1;
+        for (int i = li - 1; i >= 0; i--) { total += abs(head - left[i]); head = left[i]; printf(" -> %d", head); }
+    } else {
+        for (int i = li - 1; i >= 0; i--) { total += abs(head - left[i]); head = left[i]; printf(" -> %d", head); }
+        total += abs(head - 0); printf(" -> 0"); head = 0;
+        for (int i = 0; i < ri; i++) { total += abs(right[i] - head); head = right[i]; printf(" -> %d", head); }
+    }
+
+    printf("\n\nTotal Head Movement = %d\n", total);
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+SAMPLE INPUT VALUE(S):
+Enter number of requests: 8
+Enter the requests: 98 183 37 122 14 124 65 67
+Enter initial head position: 53
+Enter disk size: 200
+Enter direction: r
+
+SAMPLE OUTPUT:
+Seek Sequence: 53 -> 65 -> 67 -> 98 -> 122 -> 124 -> 183 -> 199 -> 37 -> 14
+
+Total Head Movement = 331
